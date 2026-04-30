@@ -1,1 +1,1970 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Global Insight — World News & City Guide</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwindcss.config = {
+  theme: {
+    extend: {
+      fontFamily: {
+        display: ['Playfair Display', 'serif'],
+        body: ['Noto Sans SC', 'sans-serif'],
+      }
+    }
+  }
+}
+</script>
+<style>
+  :root {
+    --bg: #0f0f0f;
+    --bg-elevated: #1a1a1a;
+    --card: #222222;
+    --card-hover: #2a2a2a;
+    --border: #333333;
+    --fg: #f0ece4;
+    --fg-muted: #9a9590;
+    --accent: #d4a24e;
+    --accent-bright: #f0c060;
+    --accent-dim: #a07830;
+    --danger: #e05050;
+    --success: #4caf6a;
+  }
 
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html {
+    scroll-behavior: smooth;
+    scrollbar-width: thin;
+    scrollbar-color: var(--accent-dim) var(--bg);
+  }
+
+  body {
+    font-family: 'Noto Sans SC', sans-serif;
+    background: var(--bg);
+    color: var(--fg);
+    overflow-x: hidden;
+    min-height: 100vh;
+  }
+
+  ::selection {
+    background: var(--accent);
+    color: var(--bg);
+  }
+
+  /* Background texture */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 80% 50% at 20% 10%, rgba(212,162,78,0.06) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 40% at 80% 80%, rgba(212,162,78,0.04) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Noise texture */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    opacity: 0.025;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Page container */
+  .page { display: none; position: relative; z-index: 1; }
+  .page.active { display: block; animation: pageIn 0.5s ease-out; }
+
+  @keyframes pageIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Navigation bar */
+  .nav-main {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 1000;
+    backdrop-filter: blur(20px) saturate(1.4);
+    -webkit-backdrop-filter: blur(20px) saturate(1.4);
+    background: rgba(15,15,15,0.82);
+    border-bottom: 1px solid var(--border);
+    transition: all 0.3s ease;
+  }
+
+  .nav-main.scrolled {
+    box-shadow: 0 4px 30px rgba(0,0,0,0.5);
+  }
+
+  .nav-link {
+    position: relative;
+    color: var(--fg-muted);
+    transition: color 0.3s;
+    font-size: 0.875rem;
+    letter-spacing: 0.02em;
+    padding: 0.5rem 0;
+  }
+
+  .nav-link:hover, .nav-link.active {
+    color: var(--accent);
+  }
+
+  .nav-link::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0;
+    width: 0; height: 2px;
+    background: var(--accent);
+    transition: width 0.3s ease;
+  }
+
+  .nav-link:hover::after, .nav-link.active::after {
+    width: 100%;
+  }
+
+  /* Hero section */
+  .hero-section {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+  }
+
+  .hero-bg {
+    position: absolute;
+    inset: 0;
+    background: url('https://picsum.photos/seed/globe-hero/1920/1080.jpg') center/cover no-repeat;
+    filter: brightness(0.25) saturate(0.7);
+    transform: scale(1.05);
+    animation: heroBgDrift 20s ease-in-out infinite alternate;
+  }
+
+  @keyframes heroBgDrift {
+    0% { transform: scale(1.05) translateX(0); }
+    100% { transform: scale(1.1) translateX(-20px); }
+  }
+
+  .hero-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      135deg,
+      rgba(15,15,15,0.9) 0%,
+      rgba(15,15,15,0.4) 50%,
+      rgba(15,15,15,0.8) 100%
+    );
+  }
+
+  .hero-headline {
+    font-family: 'Playfair Display', serif;
+    font-weight: 900;
+    font-size: clamp(2.5rem, 6vw, 5rem);
+    line-height: 1.1;
+    color: var(--fg);
+    max-width: 700px;
+  }
+
+  .hero-headline span {
+    color: var(--accent);
+    position: relative;
+  }
+
+  .hero-headline span::after {
+    content: '';
+    position: absolute;
+    bottom: 0.08em; left: 0;
+    width: 100%; height: 3px;
+    background: var(--accent);
+    opacity: 0.5;
+  }
+
+  /* Ticker / marquee */
+  .ticker-wrap {
+    overflow: hidden;
+    background: var(--accent);
+    color: var(--bg);
+    font-weight: 700;
+    font-size: 0.85rem;
+    padding: 0.5rem 0;
+  }
+
+  .ticker {
+    display: flex;
+    animation: tickerScroll 30s linear infinite;
+    white-space: nowrap;
+  }
+
+  @keyframes tickerScroll {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+
+  .ticker-item {
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .ticker-item::before {
+    content: '◆';
+    font-size: 0.5rem;
+  }
+
+  /* Card */
+  .news-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    cursor: pointer;
+  }
+
+  .news-card:hover {
+    transform: translateY(-6px);
+    border-color: var(--accent-dim);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.4), 0 0 0 1px rgba(212,162,78,0.1);
+  }
+
+  .news-card:hover .card-img {
+    transform: scale(1.08);
+  }
+
+  .card-img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    transition: transform 0.6s ease;
+  }
+
+  .card-tag {
+    display: inline-block;
+    background: var(--accent);
+    color: var(--bg);
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 0.2rem 0.6rem;
+    border-radius: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  /* City card */
+  .city-card {
+    position: relative;
+    border-radius: 16px;
+    overflow: hidden;
+    cursor: pointer;
+    height: 320px;
+    transition: all 0.4s ease;
+  }
+
+  .city-card:hover {
+    transform: scale(1.02);
+    box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+  }
+
+  .city-card:hover .city-overlay {
+    background: linear-gradient(to top, rgba(15,15,15,0.95) 0%, rgba(15,15,15,0.2) 100%);
+  }
+
+  .city-card img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    transition: transform 0.8s ease;
+  }
+
+  .city-card:hover img {
+    transform: scale(1.1);
+  }
+
+  .city-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(15,15,15,0.85) 0%, rgba(15,15,15,0.1) 70%);
+    transition: background 0.4s;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 1.5rem;
+  }
+
+  /* Stat number animation */
+  .stat-number {
+    font-family: 'Playfair Display', serif;
+    font-size: 3rem;
+    font-weight: 900;
+    color: var(--accent);
+    line-height: 1;
+  }
+
+  .stat-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 2rem;
+    text-align: center;
+    transition: all 0.3s;
+  }
+
+  .stat-card:hover {
+    border-color: var(--accent-dim);
+    transform: translateY(-4px);
+  }
+
+  /* Pagination */
+  .page-btn {
+    width: 40px; height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--card);
+    color: var(--fg-muted);
+    cursor: pointer;
+    transition: all 0.2s;
+    font-weight: 500;
+  }
+
+  .page-btn:hover, .page-btn.active {
+    background: var(--accent);
+    color: var(--bg);
+    border-color: var(--accent);
+  }
+
+  /* Form inputs */
+  .form-input {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.875rem 1rem;
+    color: var(--fg);
+    font-family: 'Noto Sans SC', sans-serif;
+    font-size: 0.95rem;
+    transition: all 0.3s;
+    outline: none;
+  }
+
+  .form-input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(212,162,78,0.15);
+  }
+
+  .form-input::placeholder {
+    color: var(--fg-muted);
+    opacity: 0.6;
+  }
+
+  /* Buttons */
+  .btn-primary {
+    background: var(--accent);
+    color: var(--bg);
+    font-weight: 700;
+    padding: 0.875rem 2rem;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-family: 'Noto Sans SC', sans-serif;
+    font-size: 0.95rem;
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .btn-primary:hover {
+    background: var(--accent-bright);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(212,162,78,0.3);
+  }
+
+  .btn-primary:active {
+    transform: translateY(0);
+  }
+
+  .btn-outline {
+    background: transparent;
+    color: var(--accent);
+    border: 1px solid var(--accent);
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: 'Noto Sans SC', sans-serif;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: all 0.3s;
+  }
+
+  .btn-outline:hover {
+    background: var(--accent);
+    color: var(--bg);
+  }
+
+  /* Toast */
+  .toast {
+    position: fixed;
+    bottom: 2rem; right: 2rem;
+    padding: 1rem 1.5rem;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    z-index: 9999;
+    transform: translateY(120px);
+    opacity: 0;
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    backdrop-filter: blur(10px);
+  }
+
+  .toast.show {
+    transform: translateY(0);
+    opacity: 1;
+  }
+
+  .toast.success {
+    background: rgba(76,175,106,0.15);
+    border: 1px solid var(--success);
+    color: var(--success);
+  }
+
+  .toast.error {
+    background: rgba(224,80,80,0.15);
+    border: 1px solid var(--danger);
+    color: var(--danger);
+  }
+
+  /* Map container */
+  .map-container {
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    height: 400px;
+    background: var(--card);
+  }
+
+  /* Floating particles */
+  .floating-particle {
+    position: absolute;
+    width: 4px; height: 4px;
+    background: var(--accent);
+    border-radius: 50%;
+    opacity: 0;
+    animation: particleFloat 6s ease-in-out infinite;
+  }
+
+  @keyframes particleFloat {
+    0% { opacity: 0; transform: translateY(0) scale(0); }
+    20% { opacity: 0.6; transform: translateY(-30px) scale(1); }
+    80% { opacity: 0.3; transform: translateY(-120px) scale(0.5); }
+    100% { opacity: 0; transform: translateY(-160px) scale(0); }
+  }
+
+  /* Event timeline */
+  .timeline-line {
+    position: absolute;
+    left: 20px;
+    top: 0; bottom: 0;
+    width: 2px;
+    background: linear-gradient(to bottom, var(--accent), transparent);
+  }
+
+  .timeline-dot {
+    position: absolute;
+    left: 14px;
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    background: var(--accent);
+    border: 3px solid var(--bg);
+    box-shadow: 0 0 0 2px var(--accent-dim);
+  }
+
+  /* Modal */
+  .modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(8px);
+    z-index: 5000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+  }
+
+  .modal-backdrop.show {
+    display: flex;
+    animation: fadeIn 0.3s ease;
+  }
+
+  .modal-content {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    max-width: 700px;
+    width: 100%;
+    max-height: 85vh;
+    overflow-y: auto;
+    animation: modalIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes modalIn { from { opacity: 0; transform: scale(0.9) translateY(20px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--accent-dim); border-radius: 3px; }
+
+  /* Mobile menu */
+  .mobile-menu {
+    position: fixed;
+    inset: 0;
+    background: rgba(15,15,15,0.98);
+    backdrop-filter: blur(20px);
+    z-index: 2000;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1.5rem;
+  }
+
+  .mobile-menu.open {
+    display: flex;
+    animation: fadeIn 0.3s ease;
+  }
+
+  .mobile-menu a {
+    font-size: 1.5rem;
+    color: var(--fg);
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.3s;
+  }
+
+  .mobile-menu a:hover {
+    color: var(--accent);
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .hero-headline { font-size: clamp(2rem, 8vw, 3rem); }
+    .stat-number { font-size: 2rem; }
+    .city-card { height: 240px; }
+    .map-container { height: 300px; }
+  }
+
+  /* Reduced motion preference */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+
+  /* Geolocation indicator */
+  .geo-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.8rem;
+    color: var(--accent);
+  }
+
+  .geo-indicator .pulse {
+    width: 8px; height: 8px;
+    background: var(--accent);
+    border-radius: 50%;
+    animation: geoPulse 2s ease-in-out infinite;
+  }
+
+  @keyframes geoPulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(212,162,78,0.5); }
+    50% { box-shadow: 0 0 0 8px rgba(212,162,78,0); }
+  }
+
+  /* Chart container */
+  .chart-container {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+  }
+
+  /* Section title */
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-weight: 900;
+    font-size: clamp(1.8rem, 3vw, 2.5rem);
+    color: var(--fg);
+    position: relative;
+    display: inline-block;
+  }
+
+  .section-title::after {
+    content: '';
+    display: block;
+    width: 60px;
+    height: 3px;
+    background: var(--accent);
+    margin-top: 0.5rem;
+  }
+
+  /* Back to top */
+  .back-to-top {
+    position: fixed;
+    bottom: 2rem; left: 2rem;
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    background: var(--card);
+    border: 1px solid var(--border);
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 999;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.3s;
+  }
+
+  .back-to-top.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .back-to-top:hover {
+    background: var(--accent);
+    color: var(--bg);
+  }
+</style>
+</head>
+<body>
+
+<!-- Navigation -->
+<nav class="nav-main" id="navbar" role="navigation" aria-label="Main navigation">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
+    <a href="#" class="flex items-center gap-3" onclick="navigateTo('home'); return false;" aria-label="Back to home">
+      <div class="w-9 h-9 rounded-lg flex items-center justify-center" style="background: var(--accent);">
+        <i class="fas fa-globe" style="color: var(--bg); font-size: 1rem;"></i>
+      </div>
+      <span class="font-display font-bold text-lg tracking-wide" style="color: var(--fg);">Global news reporter</span>
+    </a>
+
+    <div class="hidden md:flex items-center gap-6">
+      <a href="#" class="nav-link active" data-page="home" onclick="navigateTo('home'); return false;">Home</a>
+      <a href="#" class="nav-link" data-page="about" onclick="navigateTo('about'); return false;">About Us</a>
+      <a href="#" class="nav-link" data-page="world" onclick="navigateTo('world'); return false;">Today in World</a>
+      <a href="#" class="nav-link" data-page="news" onclick="navigateTo('news'); return false;">News</a>
+      <a href="#" class="nav-link" data-page="cities" onclick="navigateTo('cities'); return false;">Cities</a>
+      <a href="#" class="nav-link" data-page="data" onclick="navigateTo('data'); return false;">Data</a>
+      <a href="#" class="nav-link" data-page="contact" onclick="navigateTo('contact'); return false;">Contact</a>
+      <a href="#" class="nav-link" data-page="feedback" onclick="navigateTo('feedback'); return false;">Feedback</a>
+    </div>
+
+    <button class="md:hidden text-xl" style="color: var(--fg);" onclick="toggleMobileMenu()" aria-label="Open menu">
+      <i class="fas fa-bars" id="menuIcon"></i>
+    </button>
+  </div>
+</nav>
+
+<!-- Mobile menu -->
+<div class="mobile-menu" id="mobileMenu" role="dialog" aria-label="Mobile navigation">
+  <button onclick="toggleMobileMenu()" class="absolute top-5 right-5 text-2xl" style="color: var(--fg);" aria-label="Close menu">
+    <i class="fas fa-times"></i>
+  </button>
+  <a href="home.html" onclick="navigateTo('home'); toggleMobileMenu(); return false;">Home</a>
+  <a href="about.html" onclick="navigateTo('about'); toggleMobileMenu(); return false;">About Us</a>
+  <a href="world.html" onclick="navigateTo('world'); toggleMobileMenu(); return false;">Today in World</a>
+  <a href="news.html" onclick="navigateTo('news'); toggleMobileMenu(); return false;">News</a>
+  <a href="cities.html" onclick="navigateTo('cities'); toggleMobileMenu(); return false;">Cities</a>
+  <a href="data.html" onclick="navigateTo('data'); toggleMobileMenu(); return false;">Data</a>
+  <a href="contactus.html" onclick="navigateTo('contact'); toggleMobileMenu(); return false;">Contact</a>
+  <a href="feedback.html" onclick="navigateTo('feedback'); toggleMobileMenu(); return false;">Feedback</a>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- ==================== Home ==================== -->
+<section class="page active" id="page-home">
+  <!-- Hero -->
+  <div class="hero-section">
+    <div class="hero-bg"></div>
+    <div class="hero-overlay"></div>
+
+    <!-- Floating particles -->
+    <div class="floating-particle" style="left:15%; bottom:20%; animation-delay:0s;"></div>
+    <div class="floating-particle" style="left:30%; bottom:30%; animation-delay:1s;"></div>
+    <div class="floating-particle" style="left:55%; bottom:15%; animation-delay:2s;"></div>
+    <div class="floating-particle" style="left:75%; bottom:25%; animation-delay:3s;"></div>
+    <div class="floating-particle" style="left:85%; bottom:40%; animation-delay:4s;"></div>
+
+    <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-32">
+      <div class="mb-4">
+        <span class="inline-block px-3 py-1 rounded text-xs font-bold tracking-wider" style="background: rgba(212,162,78,0.15); color: var(--accent); border: 1px solid rgba(212,162,78,0.3);">
+          <i class="fas fa-bolt mr-1"></i> Live Updates
+        </span>
+      </div>
+      <h1 class="hero-headline mb-6">
+        The World's Pulse,<br><span>Every Moment</span>
+      </h1>
+      <p class="text-lg max-w-lg mb-8" style="color: var(--fg-muted); line-height: 1.8;">
+        Covering six continents and five major cities — delivering the most timely international news, in-depth analysis, and local event guides.
+      </p>
+      <div class="flex flex-wrap gap-4">
+        <button class="btn-primary" onclick="navigateTo('world')">
+          <i class="fas fa-arrow-right mr-2"></i>Explore Today's World
+        </button>
+        <button class="btn-outline" onclick="navigateTo('about')">
+          Learn More
+        </button>
+      </div>
+
+      <!-- Live metrics -->
+      <div class="flex flex-wrap gap-8 mt-16">
+        <div>
+          <div class="text-2xl font-display font-bold" style="color: var(--accent);" id="liveArticles">0</div>
+          <div class="text-xs mt-1" style="color: var(--fg-muted);">Reports Today</div>
+        </div>
+        <div>
+          <div class="text-2xl font-display font-bold" style="color: var(--accent);" id="liveCities">0</div>
+          <div class="text-xs mt-1" style="color: var(--fg-muted);">Cities Covered</div>
+        </div>
+        <div>
+          <div class="text-2xl font-display font-bold" style="color: var(--accent);" id="liveReaders">0</div>
+          <div class="text-xs mt-1" style="color: var(--fg-muted);">Readers Online</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Ticker -->
+  <div class="ticker-wrap" role="marquee" aria-label="Breaking headlines">
+    <div class="ticker" id="tickerContent"></div>
+  </div>
+
+  <!-- Headlines -->
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+    <h2 class="section-title mb-12">Top Headlines</h2>
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-16" id="headlineGrid"></div>
+
+    <!-- Upcoming events -->
+    <h2 class="section-title mb-8">Upcoming Events</h2>
+    <div class="relative pl-12" id="eventsTimeline">
+      <div class="timeline-line"></div>
+    </div>
+  </div>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- ==================== About Us ==================== -->
+<section class="page" id="page-about">
+  <div class="pt-28 pb-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <h2 class="section-title mb-12">About Us</h2>
+
+    <div class="grid grid-cols-1 lg:grid-cols-5 gap-12 mb-20">
+      <div class="lg:col-span-3">
+        <p class="text-lg leading-relaxed mb-6" style="color: var(--fg-muted);">
+          Global news reporter was founded in 2019 as a digital media platform dedicated to connecting global information hubs. Our team spans karachi, New York, London, Tokyo, and Dubai — delivering international-depth reporting through a local lens.
+        </p>
+        <p class="text-lg leading-relaxed mb-6" style="color: var(--fg-muted);">
+          We believe quality information should never be blocked by language or geography. By integrating multilingual sources, leveraging geolocation technology, and employing data visualization, we make every news story spatially aware — you don't just know "what happened," you see "where it happened."
+        </p>
+        <p class="text-lg leading-relaxed" style="color: var(--fg-muted);">
+          From breaking news to cultural events, from economic data to city walks — Global news reporter is your companion for understanding the world.
+        </p>
+      </div>
+      <div class="lg:col-span-2">
+        <div class="rounded-2xl overflow-hidden" style="border: 1px solid var(--border);">
+          <img src="https://lh3.googleusercontent.com/gpms-cs-s/ABJJf50WLdh6X99IWlHc0_C-sIf5vNiqWTaMdGQOTFQFJEsfEz6b68SUMT-tL5asPSacRqK22RuiSb4kUpAz9nhizhQT3ovku1zSdv7QTr9tPnGLR7PFxM2P3_GxIsf2efELo3H27Pw=s680-w680-h510-rw" alt="Our team" class="w-full h-full object-cover">
+        </div>
+      </div>
+    </div>
+
+    <!-- Core values -->
+    <h3 class="text-xl font-bold mb-8" style="color: var(--fg);">Core Values</h3>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div class="stat-card">
+        <div class="text-3xl mb-4" style="color: var(--accent);"><i class="fas fa-eye"></i></div>
+        <h4 class="font-bold mb-2">Transparency</h4>
+        <p class="text-sm" style="color: var(--fg-muted);">Every report is tagged with source, publish time, and geolocation</p>
+      </div>
+      <div class="stat-card">
+        <div class="text-3xl mb-4" style="color: var(--accent);"><i class="fas fa-map-marker-alt"></i></div>
+        <h4 class="font-bold mb-2">Geo-Awareness</h4>
+        <p class="text-sm" style="color: var(--fg-muted);">News deeply linked to maps for intuitive spatial understanding</p>
+      </div>
+      <div class="stat-card">
+        <div class="text-3xl mb-4" style="color: var(--accent);"><i class="fas fa-clock"></i></div>
+        <h4 class="font-bold mb-2">Timeliness</h4>
+        <p class="text-sm" style="color: var(--fg-muted);">24/7 global editorial teams with minute-level updates</p>
+      </div>
+      <div class="stat-card">
+        <div class="text-3xl mb-4" style="color: var(--accent);"><i class="fas fa-users"></i></div>
+        <h4 class="font-bold mb-2">Community-Driven</h4>
+        <p class="text-sm" style="color: var(--fg-muted);">Open feedback channels let readers improve content quality</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== Today in World ==================== -->
+<section class="page" id="page-world">
+  <div class="pt-28 pb-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <h2 class="section-title mb-4">Today in the World</h2>
+    <p class="mb-12" style="color: var(--fg-muted); max-width: 600px;">
+      Latest updates from every continent. Each story is geotagged — click to locate it on the map.
+    </p>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="worldGrid"></div>
+  </div>
+</section>
+
+
+
+
+
+
+
+
+<!-- ==================== News List ==================== -->
+<section class="page" id="page-news">
+  <div class="pt-28 pb-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <h2 class="section-title mb-12">All News</h2>
+
+    <!-- Category filters -->
+    <div class="flex flex-wrap gap-3 mb-10" id="newsFilters"></div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="newsGrid"></div>
+
+    <!-- Pagination -->
+    <div class="flex items-center justify-center gap-2 mt-12" id="newsPagination"></div>
+  </div>
+</section>
+
+
+
+
+
+
+
+<!-- ==================== News Detail Modal ==================== -->
+<div class="modal-backdrop" id="newsModal" role="dialog" aria-label="News detail">
+  <div class="modal-content" id="newsModalContent"></div>
+</div>
+
+
+
+
+
+
+
+
+
+<!-- ==================== Cities Page ==================== -->
+<section class="page" id="page-cities">
+  <div class="pt-28 pb-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <h2 class="section-title mb-4">Global Cities</h2>
+    <p class="mb-12" style="color: var(--fg-muted); max-width: 600px;">
+      Dive into five major cities — explore local culture, economic dynamics, and upcoming events. All locations support geolocation.
+    </p>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" id="citiesGrid"></div>
+
+    <!-- City pagination -->
+    <div class="flex items-center justify-center gap-2 mt-12" id="citiesPagination"></div>
+
+    <!-- City detail -->
+    <div id="cityDetail" style="display: none;" class="mt-12"></div>
+  </div>
+</section>
+
+
+
+
+
+
+
+
+<!-- ==================== Data Page ==================== -->
+<section class="page" id="page-data">
+  <div class="pt-28 pb-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <h2 class="section-title mb-12">Data Center</h2>
+
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+      <div class="stat-card">
+        <div class="stat-number" data-target="12847">0</div>
+        <div class="text-sm mt-2" style="color: var(--fg-muted);">Total Reports</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number" data-target="86">0</div>
+        <div class="text-sm mt-2" style="color: var(--fg-muted);">Countries Covered</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number" data-target="342">0</div>
+        <div class="text-sm mt-2" style="color: var(--fg-muted);">Contributing Journalists</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number" data-target="5">0</div>
+        <div class="text-sm mt-2" style="color: var(--fg-muted);">Global Editorial Offices</div>
+      </div>
+    </div>
+
+
+
+
+
+
+
+    <!-- Charts -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-12">
+      <div class="chart-container">
+        <h3 class="font-bold mb-4">Monthly Report Trend</h3>
+        <canvas id="trendChart" height="250"></canvas>
+      </div>
+      <div class="chart-container">
+        <h3 class="font-bold mb-4">Regional Report Distribution</h3>
+        <canvas id="regionChart" height="250"></canvas>
+      </div>
+    </div>
+
+    <div class="chart-container">
+      <h3 class="font-bold mb-4">News Category Breakdown</h3>
+      <canvas id="categoryChart" height="180"></canvas>
+    </div>
+  </div>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- ==================== Contact Page ==================== -->
+<section class="page" id="page-contact">
+  <div class="pt-28 pb-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <h2 class="section-title mb-12">Contact Us</h2>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+      <div>
+        <div class="mb-8">
+          <h3 class="font-bold text-lg mb-4">Headquarters</h3>
+          <p style="color: var(--fg-muted); line-height: 1.8;">
+            <i class="fas fa-building mr-2" style="color: var(--accent);"></i>ii chandrighar road, saima tower, 5th floor, karachi<br>
+            <i class="fas fa-phone mr-2 mt-3 inline-block" style="color: var(--accent);"></i>+923180771667<br>
+            <i class="fas fa-envelope mr-2 mt-3 inline-block" style="color: var(--accent);"></i>contact@globalnewsreporter.com
+          </p>
+        </div>
+
+        <div class="mb-8">
+          <h3 class="font-bold text-lg mb-4">Global Offices</h3>
+          <div class="space-y-3">
+            <div class="flex items-center gap-3">
+              <span class="geo-indicator"><span class="pulse"></span></span>
+              <span style="color: var(--fg-muted);">New York — 345 Fifth Avenue</span>
+            </div>
+            <div class="flex items-center gap-3">
+              <span class="geo-indicator"><span class="pulse"></span></span>
+              <span style="color: var(--fg-muted);">London — 78 Fleet Street</span>
+            </div>
+            <div class="flex items-center gap-3">
+              <span class="geo-indicator"><span class="pulse"></span></span>
+              <span style="color: var(--fg-muted);">Tokyo — 2-1 Ichigaya, Chiyoda-ku</span>
+            </div>
+            <div class="flex items-center gap-3">
+              <span class="geo-indicator"><span class="pulse"></span></span>
+              <span style="color: var(--fg-muted);">Dubai — Dubai Water Canal, Business Bay</span>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <h3 class="font-bold text-lg mb-4">Business Hours</h3>
+          <p style="color: var(--fg-muted);">Monday–Friday: 09:00–09:00 (karachi Time)</p>
+          <p style="color: var(--fg-muted);">Weekends & Holidays: On-call duty</p>
+        </div>
+      </div>
+
+      <div>
+        <div class="map-container mb-6" id="contactMap">
+          <iframe
+            src="https://maps.app.goo.gl/MMhfHgpKjNmgCtrj7"
+            width="100%" height="100%"
+            style="border: none;"
+            loading="lazy"
+            title="Headquarters map"
+            aria-label="Map showing headquarters address">
+          </iframe>
+        </div>
+        <button class="btn-outline w-full" onclick="getMyLocation()">
+          <i class="fas fa-crosshairs mr-2"></i>Get My Location & Calculate Distance
+        </button>
+        <p class="text-sm mt-3" style="color: var(--fg-muted);" id="distanceResult"></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- ==================== Feedback Page ==================== -->
+<section class="page" id="page-feedback">
+  <div class="pt-28 pb-20 max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+    <h2 class="section-title mb-4">Feedback</h2>
+    <p class="mb-10" style="color: var(--fg-muted);">
+      Every piece of feedback is carefully reviewed. Help us improve content quality and user experience.
+    </p>
+
+    <form id="feedbackForm" onsubmit="submitFeedback(event)" novalidate>
+      <div class="space-y-6">
+        <div>
+          <label class="block text-sm font-medium mb-2" for="fb-name">Name</label>
+          <input type="text" id="fb-name" class="form-input" placeholder="Enter your name" required>
+          <p class="text-xs mt-1 hidden" style="color: var(--danger);" id="fb-name-err">Please enter your name</p>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium mb-2" for="fb-email">Email</label>
+          <input type="email" id="fb-email" class="form-input" placeholder="example@mail.com" required>
+          <p class="text-xs mt-1 hidden" style="color: var(--danger);" id="fb-email-err">Please enter a valid email address</p>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium mb-2" for="fb-type">Feedback Type</label>
+          <select id="fb-type" class="form-input" required>
+            <option value="">Please select...</option>
+            <option value="content">Content Correction</option>
+            <option value="feature">Feature Suggestion</option>
+            <option value="bug">Bug Report</option>
+            <option value="praise">Praise</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium mb-2">Overall Rating</label>
+          <div class="flex gap-2" id="ratingStars" role="radiogroup" aria-label="Rating">
+            <button type="button" class="text-2xl transition-colors" style="color: var(--border);" data-rating="1" onclick="setRating(1)" aria-label="1 star"><i class="fas fa-star"></i></button>
+            <button type="button" class="text-2xl transition-colors" style="color: var(--border);" data-rating="2" onclick="setRating(2)" aria-label="2 stars"><i class="fas fa-star"></i></button>
+            <button type="button" class="text-2xl transition-colors" style="color: var(--border);" data-rating="3" onclick="setRating(3)" aria-label="3 stars"><i class="fas fa-star"></i></button>
+            <button type="button" class="text-2xl transition-colors" style="color: var(--border);" data-rating="4" onclick="setRating(4)" aria-label="4 stars"><i class="fas fa-star"></i></button>
+            <button type="button" class="text-2xl transition-colors" style="color: var(--border);" data-rating="5" onclick="setRating(5)" aria-label="5 stars"><i class="fas fa-star"></i></button>
+          </div>
+          <input type="hidden" id="fb-rating" value="0">
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium mb-2" for="fb-message">Detailed Description</label>
+          <textarea id="fb-message" class="form-input" rows="5" placeholder="Please describe your feedback in detail..." required></textarea>
+          <p class="text-xs mt-1 hidden" style="color: var(--danger);" id="fb-msg-err">Please enter your feedback</p>
+        </div>
+
+        <button type="submit" class="btn-primary w-full">
+          <i class="fas fa-paper-plane mr-2"></i>Submit Feedback
+        </button>
+      </div>
+    </form>
+  </div>
+</section>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- Back to top -->
+<button class="back-to-top" id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Back to top">
+  <i class="fas fa-chevron-up"></i>
+</button>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+
+
+
+
+
+// ============================
+// Data
+// ============================
+const NEWS_DATA = [
+  {
+    id: 1, category: 'Politics', tag: 'POLITICS',
+    title: 'EU Passes Landmark Digital Market Regulation Amendment',
+    summary: 'The European Parliament overwhelmingly approved amendments to the Digital Services Act, imposing stricter algorithm transparency requirements on major tech platforms.',
+    content: 'The European Parliament on Wednesday passed the second round of amendments to the Digital Services Act (DSA) with a resounding vote of 512 in favor and 67 against. The amendments focus on the transparency of algorithmic recommendation systems, requiring platforms with over 45 million monthly active users to disclose the core logic of their content ranking algorithms to independent auditors. Additionally, a new "child protection clause" prohibits platforms from serving targeted ads to minors. The EU digital affairs chief stated that the act will be transposed into national law within 18 months of taking effect. Major Silicon Valley tech companies have already begun lobbying efforts to secure transition periods in the final implementation rules.',
+    image: 'https://picsum.photos/seed/news-eu/800/450.jpg',
+    date: '2024-12-18',
+    location: { name: 'Brussels', lat: 50.85, lng: 4.35 },
+    author: 'Michael Torres'
+  },
+  {
+    id: 2, category: 'Economy', tag: 'ECONOMY',
+    title: 'Global Semiconductor Supply Chain Reshuffling Accelerates: Southeast Asia Capacity Up 47%',
+    summary: 'Driven by geopolitical factors, chip packaging and testing capacity in Vietnam, Malaysia, and Thailand has expanded significantly over the past year.',
+    content: 'According to the latest report from SEMI, OSAT capacity in Southeast Asia grew 47% year-over-year in 2024, with Vietnam contributing the largest increment. The report notes that over 30 multinational chip companies have built or expanded factories in Bac Ninh Province (Vietnam) and Penang State (Malaysia). This trend is driven by the US-China tech rivalry accelerating the "China+1" supply chain strategy. However, analysts warn that Southeast Asia still faces significant gaps in high-end talent, power infrastructure, and logistics efficiency — making it difficult to fully replace existing East Asian manufacturing clusters in the short term.',
+    image: 'https://picsum.photos/seed/news-chip/800/450.jpg',
+    date: '2024-12-17',
+    location: { name: 'Singapore', lat: 1.35, lng: 103.82 },
+    author: 'Sarah Chen'
+  },
+  {
+    id: 3, category: 'Technology', tag: 'TECH',
+    title: 'Quantum Error Correction Achieves Milestone Breakthrough',
+    summary: 'Research teams achieve sub-threshold logical error rates in a 1,000-qubit system for the first time — a critical step toward practical quantum computing.',
+    content: 'Three independent research teams simultaneously published papers in Nature reporting experimental results achieving logical qubit error rates below physical error rates on superconducting quantum processors. The most notable result came from an experiment using 1,050 physical qubits — through a novel "surface code" error correction scheme, the team successfully controlled the logical error rate to below 0.1 per 100 million operations, breaking through the "error correction threshold" for practical quantum computing for the first time. This means it is theoretically possible to build quantum processors capable of meaningful computation. However, engineering challenges such as cryogenic system costs and qubit interconnect bandwidth remain before lab results can become commercial products.',
+    image: 'https://picsum.photos/seed/news-quantum/800/450.jpg',
+    date: '2024-12-16',
+    location: { name: 'Zurich', lat: 47.38, lng: 8.54 },
+    author: 'David Kim'
+  },
+  {
+    id: 4, category: 'Culture', tag: 'CULTURE',
+    title: 'British Museum Completes Largest-Ever East Asian Digitization Project',
+    summary: 'A three-year digitization of the East Asian collection has concluded, with over 12,000 Chinese, Japanese, and Korean artifacts now available in 8K ultra-HD online.',
+    content: 'The British Museum announced the completion of its "East Asian Digital Cultural Heritage" project. Using multi-spectral imaging, 3D structured light scanning, and photogrammetry, the team digitized over 12,300 East Asian artifacts in ultra-high definition, including 2,300 Chinese ceramics, 1,800 Japanese ukiyo-e prints, and 900 Korean bronze artifacts. All digital assets are freely available through the museum\'s open access platform — users can rotate artifacts 360 degrees and switch between spectral bands to observe restoration traces and material characteristics invisible to the naked eye. The project director stated this is the largest single-region artifact digitization project in the global museum sector to date.',
+    image: 'https://picsum.photos/seed/news-museum/800/450.jpg',
+    date: '2024-12-15',
+    location: { name: 'London', lat: 51.52, lng: -0.12 },
+    author: 'Emma Wright'
+  },
+  {
+    id: 5, category: 'Environment', tag: 'ENVIRONMENT',
+    title: 'Arctic Sea Ice Hits Record Low for December Since Satellite Era Began',
+    summary: 'EU Copernicus data shows mid-December Arctic sea ice extent is 18% below the historical average.',
+    content: 'The latest bulletin from CMEMS shows that in the second week of December 2024, Arctic sea ice extent stood at only 9.2 million square kilometers — approximately 18% below the 1981–2010 average, breaking the previous record set in 2016. Scientists identified several contributing factors: autumn high temperatures in Siberia delayed ice formation, the North Atlantic warm current shifted unusually far north, and the Arctic albedo positive feedback loop continued to intensify. Models predict that if greenhouse gas emissions maintain their current trajectory, the Arctic could experience its first "ice-free summer" in the 2030s.',
+    image: 'https://picsum.photos/seed/news-arctic/800/450.jpg',
+    date: '2024-12-14',
+    location: { name: 'Oslo', lat: 59.91, lng: 10.75 },
+    author: 'Lars Berg'
+  },
+  {
+    id: 6, category: 'Sports', tag: 'SPORTS',
+    title: '2026 World Cup Asian Qualifiers See Dramatic Upsets',
+    summary: 'Multiple traditional powerhouses suffered surprise defeats in the third round, creating unprecedented chaos in group standings.',
+    content: 'The third round (18-team stage) of Asian qualifiers for the 2026 FIFA World Cup reached matchday 6 with the most unexpected results in years. In Group C, South Korea lost 0–1 at home to Palestine, while China upset Australia 2–1 away, jumping to second place in the group. Analysts point out that the overall gap in Asian football quality is narrowing rapidly, driven by the proliferation of naturalized player policies and increased investment in youth development systems across the continent. The AFC General Secretary stated that this situation demonstrates the comprehensive improvement of Asian football competitiveness.',
+    image: 'https://picsum.photos/seed/news-football/800/450.jpg',
+    date: '2024-12-13',
+    location: { name: 'Doha', lat: 25.29, lng: 51.53 },
+    author: 'Ahmed Hassan'
+  },
+  {
+    id: 7, category: 'Health', tag: 'HEALTH',
+    title: 'mRNA Technology Platform Successfully Applied to Autoimmune Disease for the First Time',
+    summary: 'Phase II clinical trials show that mRNA-based tolerogenic vaccines significantly reduced relapse rates in multiple sclerosis patients.',
+    content: 'BioNTech published clinical trial results in Science showing positive outcomes for BNT163, its mRNA-based tolerogenic vaccine, in a Phase II trial for multiple sclerosis (MS). Unlike traditional immunosuppressive therapies, the vaccine retrains the immune system to "ignore" rather than attack myelin by encoding patient-specific autoantigen proteins. Among 248 participants, the vaccinated group\'s annualized relapse rate decreased by 62%, without the severe infection side effects common to traditional immunosuppressants. If Phase III trials succeed, this would mark a milestone in expanding mRNA technology from infectious diseases to autoimmune disorders.',
+    image: 'https://picsum.photos/seed/news-mrna/800/450.jpg',
+    date: '2024-12-12',
+    location: { name: 'Mainz', lat: 49.99, lng: 8.27 },
+    author: 'Dr. Julia Braun'
+  },
+  {
+    id: 8, category: 'Technology', tag: 'TECH',
+    title: 'SpaceX Starship Achieves First-Ever Dual-Stage Recovery on Seventh Test Flight',
+    summary: 'Both the Super Heavy booster and Starship upper stage returned to the launch site and were caught by the chopstick arms, marking the fully reusable era.',
+    content: 'SpaceX completed the seventh full-stack flight test of its Starship launch system from Boca Chica, Texas. This mission achieved "dual recovery" for the first time — the Super Heavy booster was caught by mechanical arms at the launch tower, while the upper stage executed a controlled landing in the designated Indian Ocean zone. This achievement means Starship is on track to become the first fully reusable orbital-class launch vehicle in history. Musk stated in a subsequent announcement that Starship could execute its first commercial cargo mission before the end of 2025 and conduct a crewed lunar flyby in 2026.',
+    image: 'https://picsum.photos/seed/news-spacex/800/450.jpg',
+    date: '2024-12-11',
+    location: { name: 'Boca Chica', lat: 26.00, lng: -97.15 },
+    author: 'Ryan Park'
+  },
+  {
+    id: 9, category: 'Economy', tag: 'ECONOMY',
+    title: 'Bank of Japan Raises Rate to 0.5% — First Hike Since Ending Negative Rate Era',
+    summary: 'The BOJ announced a 25-basis-point rate hike; the yen strengthened sharply on the news.',
+    content: 'The Bank of Japan decided at its December monetary policy meeting to raise the short-term policy rate from 0.25% to 0.5% — the second rate increase since ending 8 years of negative interest policy in March 2024. Following the announcement, USD/JPY dropped sharply from 152 to around 147, and the Nikkei 225 fell 1.8%. Governor Ueda stated at the press conference that the Japanese economy is "sustainably approaching the 2% inflation target" and that a virtuous wage-price cycle is forming. Markets expect the BOJ could raise rates further to 0.75% by mid-2025.',
+    image: 'https://picsum.photos/seed/news-japan/800/450.jpg',
+    date: '2024-12-10',
+    location: { name: 'Tokyo', lat: 35.68, lng: 139.69 },
+    author: 'Yuki Tanaka'
+  }
+];
+
+const CITIES_DATA = [
+  {
+    name: 'ISLAMABAD', nameEn: 'ISLAMABAD',
+    country: 'PAKISTAN', lat: 39.90, lng: 116.40,
+    image: 'https://cdn.prod.website-files.com/6493f33dd29927a6f539aafe/64a6c0f23597d6d9e13d7eb1_Islamabad_fc75daa1c7.jpg',
+    desc: 'Where millennia of imperial history meet cutting-edge technology. The Forbidden City and Great Wall bear witness to the past; Zhongguancun and Wangjing lead the future.',
+    events: [
+      { title: '2024 karachi International Design Week', date: 'Dec 20, 2024', venue: 'karachi design center' },
+      { title: 'expo center karachi 2024', venue: 'Zhongguancun National Innovation Zone' },
+      { title: 'Palace Museum Winter Exhibition: Song Dynasty Masterpieces', date: 'Dec 18, 2024 – Mar 15, 2025', venue: 'Hall of Martial Valor, Forbidden City' }
+    ]
+  },
+  {
+    name: 'New York', nameEn: 'New York',
+    country: 'United States', lat: 40.71, lng: -74.01,
+    image: 'https://picsum.photos/seed/city-newyork/800/600.jpg',
+    desc: 'The global financial heart and cultural melting pot. Wall Street, Broadway, and Central Park form the soul triangle of the city that never sleeps.',
+    events: [
+      { title: 'MoMA New Media Art Biennale', date: 'Dec 22, 2024', venue: 'Museum of Modern Art' },
+      { title: 'Times Square New Year\'s Eve Countdown', date: 'Dec 31, 2024', venue: 'Times Square' },
+      { title: 'UN Sustainable Development Goals Annual Forum', date: 'Jan 10, 2025', venue: 'United Nations Headquarters' }
+    ]
+  },
+  {
+    name: 'London', nameEn: 'London',
+    country: 'United Kingdom', lat: 51.51, lng: -0.13,
+    image: 'https://picsum.photos/seed/city-london/800/600.jpg',
+    desc: 'A collision of imperial heritage and contemporary creativity. From the British Museum to Shoreditch, tradition and the avant-garde coexist without contradiction.',
+    events: [
+      { title: 'Tate Modern Winter Exhibition', date: 'Dec 19, 2024', venue: 'Tate Modern' },
+      { title: 'London Symphony Orchestra New Year Concert', date: 'Jan 1, 2025', venue: 'Barbican Centre' },
+      { title: 'BAFTA Award Nominations Announcement', date: 'Jan 3, 2025', venue: 'BAFTA Headquarters' }
+    ]
+  },
+  {
+    name: 'Tokyo', nameEn: 'Tokyo',
+    country: 'Japan', lat: 35.68, lng: 139.69,
+    image: 'https://picsum.photos/seed/city-tokyo/800/600.jpg',
+    desc: 'A symbiosis of extreme order and boundless imagination. From Senso-ji\'s incense to Akihabara\'s neon glow, every corner hides contradictory beauty.',
+    events: [
+      { title: 'TeamLab Borderless New Zone Opening', date: 'Dec 21, 2024', venue: 'TeamLab Borderless, Odaiba' },
+      { title: 'Tokyo International Anime Fair (Winter)', date: 'Dec 28–30, 2024', venue: 'Tokyo Big Sight' },
+      { title: 'Meiji Shrine Hatsumode (New Year Visit)', date: 'Jan 1–3, 2025', venue: 'Meiji Shrine' }
+    ]
+  },
+  {
+    name: 'Dubai', nameEn: 'Dubai',
+    country: 'UAE', lat: 25.20, lng: 55.27,
+    image: 'https://picsum.photos/seed/city-dubai/800/600.jpg',
+    desc: 'A city of the future rising from the desert. Burj Khalifa pierces the clouds, Palm Jumeirah redraws the coastline — anything is possible.',
+    events: [
+      { title: 'Dubai Shopping Festival 2024–2025', date: 'Dec 20, 2024 – Jan 25, 2025', venue: 'Citywide' },
+      { title: 'Dubai International Film Festival', date: 'Dec 22–28, 2024', venue: 'Dubai Media City' },
+      { title: 'Museum of the Future "Tomorrow\'s Cities" Forum', date: 'Jan 5, 2025', venue: 'Museum of the Future' }
+    ]
+  }
+];
+
+const EVENTS_DATA = [
+  { title: 'Global Climate Action Summit', date: 'Dec 20, 2024', location: 'Paris', icon: 'fa-leaf' },
+  { title: 'International Digital Economy Expo', date: 'Dec 25, 2024', location: 'Shanghai', icon: 'fa-microchip' },
+  { title: 'World Cultural Heritage Annual Conference', date: 'Jan 5, 2025', location: 'Kyoto', icon: 'fa-landmark' },
+  { title: 'Global Youth Leaders Forum', date: 'Jan 12, 2025', location: 'New York', icon: 'fa-users' },
+  { title: 'Asia Tech Innovation Conference', date: 'Jan 18, 2025', location: 'Singapore', icon: 'fa-rocket' }
+];
+
+const TICKER_HEADLINES = [
+  'EU Passes Digital Market Regulation Amendment',
+  'Global Semiconductor Supply Chain Reshuffling Accelerates',
+  'Quantum Error Correction Reaches Milestone',
+  'British Museum East Asian Digitization Complete',
+  'Arctic Sea Ice Hits Record December Low',
+  'World Cup Asian Qualifiers See Dramatic Upsets',
+  'mRNA Tech Applied to Autoimmune Disease for First Time',
+  'Starship Seventh Test Flight Achieves Dual Recovery',
+  'Bank of Japan Raises Rate to 0.5%'
+];
+
+
+
+
+
+
+// ============================
+// Global state
+// ============================
+let currentPage = 'home';
+let currentNewsFilter = 'All';
+let currentNewsPage = 1;
+let currentCityPage = 1;
+let feedbackRating = 0;
+const NEWS_PER_PAGE = 6;
+const CITIES_PER_PAGE = 3;
+
+
+
+
+
+
+
+// ============================
+// Navigation
+// ============================
+function navigateTo(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  const target = document.getElementById('page-' + page);
+  if (target) target.classList.add('active');
+  document.querySelectorAll('.nav-link').forEach(link => {
+    link.classList.toggle('active', link.dataset.page === page);
+  });
+  currentPage = page;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+
+  if (page === 'data') initCharts();
+  if (page === 'data') animateStats();
+  if (page === 'news') { currentNewsPage = 1; renderNewsGrid(); }
+  if (page === 'cities') { currentCityPage = 1; renderCitiesGrid(); document.getElementById('cityDetail').style.display = 'none'; }
+}
+
+function toggleMobileMenu() {
+  document.getElementById('mobileMenu').classList.toggle('open');
+}
+
+
+
+
+
+
+// ============================
+// Navbar scroll effect
+// ============================
+window.addEventListener('scroll', () => {
+  document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 50);
+  document.getElementById('backToTop').classList.toggle('visible', window.scrollY > 400);
+});
+
+
+
+
+
+
+
+
+
+// ============================
+// Home: number animation
+// ============================
+function animateCountUp(el, target, duration) {
+  let start = 0;
+  const step = target / (duration / 16);
+  function update() {
+    start += step;
+    if (start >= target) { el.textContent = target.toLocaleString(); return; }
+    el.textContent = Math.floor(start).toLocaleString();
+    requestAnimationFrame(update);
+  }
+  update();
+}
+
+function initHomeCounters() {
+  animateCountUp(document.getElementById('liveArticles'), 156, 1500);
+  animateCountUp(document.getElementById('liveCities'), 5, 1000);
+  animateCountUp(document.getElementById('liveReaders'), 28439, 2000);
+}
+
+
+
+
+
+// ============================
+// Ticker
+// ============================
+function initTicker() {
+  const container = document.getElementById('tickerContent');
+  const items = TICKER_HEADLINES.map(h => `<span class="ticker-item">${h}</span>`).join('');
+  container.innerHTML = items + items;
+}
+
+
+
+
+
+
+// ============================
+// Headlines
+// ============================
+function renderHeadlines() {
+  const grid = document.getElementById('headlineGrid');
+  const headlines = NEWS_DATA.slice(0, 2);
+  grid.innerHTML = headlines.map((news, i) => `
+    <div class="news-card" onclick="openNewsDetail(${news.id})" tabindex="0" role="button" aria-label="Read: ${news.title}">
+      <div class="overflow-hidden">
+        <img src="${news.image}" alt="${news.title}" class="card-img" style="height: ${i === 0 ? '280px' : '220px'};">
+      </div>
+      <div class="p-6">
+        <div class="flex items-center gap-3 mb-3">
+          <span class="card-tag">${news.tag}</span>
+          <span class="geo-indicator"><span class="pulse"></span>${news.location.name}</span>
+        </div>
+        <h3 class="font-bold text-lg mb-2 leading-snug" style="color: var(--fg);">${news.title}</h3>
+        <p class="text-sm leading-relaxed" style="color: var(--fg-muted);">${news.summary}</p>
+        <div class="flex items-center justify-between mt-4 pt-4" style="border-top: 1px solid var(--border);">
+          <span class="text-xs" style="color: var(--fg-muted);"><i class="far fa-calendar mr-1"></i>${news.date}</span>
+          <span class="text-xs font-medium" style="color: var(--accent);">Read more <i class="fas fa-arrow-right ml-1"></i></span>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ============================
+// Events timeline
+// ============================
+function renderEventsTimeline() {
+  const container = document.getElementById('eventsTimeline');
+  const line = '<div class="timeline-line"></div>';
+  const items = EVENTS_DATA.map((ev, i) => `
+    <div class="relative mb-8 pl-8" style="top: ${i * 8}px;">
+      <div class="timeline-dot" style="top: 6px;"></div>
+      <div class="stat-card p-4">
+        <div class="flex items-start gap-4">
+          <div class="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0" style="background: rgba(212,162,78,0.15);">
+            <i class="fas ${ev.icon}" style="color: var(--accent);"></i>
+          </div>
+          <div class="flex-1 min-w-0">
+            <h4 class="font-bold text-sm mb-1" style="color: var(--fg);">${ev.title}</h4>
+            <div class="flex flex-wrap items-center gap-3 text-xs" style="color: var(--fg-muted);">
+              <span><i class="far fa-calendar mr-1"></i>${ev.date}</span>
+              <span><i class="fas fa-map-pin mr-1"></i>${ev.location}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `).join('');
+  container.innerHTML = line + items;
+}
+
+
+
+
+
+
+
+
+
+
+
+// ============================
+// Today in World
+// ============================
+function renderWorldGrid() {
+  const grid = document.getElementById('worldGrid');
+  grid.innerHTML = NEWS_DATA.map(news => `
+    <div class="news-card" onclick="openNewsDetail(${news.id})" tabindex="0" role="button">
+      <div class="overflow-hidden relative">
+        <img src="${news.image}" alt="${news.title}" class="card-img">
+        <div class="absolute top-3 right-3">
+          <span class="geo-indicator px-2 py-1 rounded-md" style="background: rgba(15,15,15,0.8); backdrop-filter: blur(4px);">
+            <span class="pulse"></span>${news.location.name}
+          </span>
+        </div>
+      </div>
+      <div class="p-5">
+        <span class="card-tag mb-3 inline-block">${news.tag}</span>
+        <h3 class="font-bold mb-2 leading-snug" style="color: var(--fg);">${news.title}</h3>
+        <p class="text-sm leading-relaxed mb-3" style="color: var(--fg-muted);">${news.summary}</p>
+        <div class="flex items-center justify-between text-xs" style="color: var(--fg-muted);">
+          <span><i class="far fa-calendar mr-1"></i>${news.date}</span>
+          <span style="color: var(--accent);">${news.author}</span>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ============================
+// News list (filter + pagination)
+// ============================
+function getCategories() {
+  return ['All', ...new Set(NEWS_DATA.map(n => n.category))];
+}
+
+function renderNewsFilters() {
+  const container = document.getElementById('newsFilters');
+  container.innerHTML = getCategories().map(cat => `
+    <button class="btn-outline text-sm ${cat === currentNewsFilter ? '!bg-[var(--accent)] !text-[var(--bg)] !border-[var(--accent)]' : ''}"
+      onclick="filterNews('${cat}')">${cat}</button>
+  `).join('');
+}
+
+function filterNews(cat) {
+  currentNewsFilter = cat;
+  currentNewsPage = 1;
+  renderNewsFilters();
+  renderNewsGrid();
+}
+
+function getFilteredNews() {
+  if (currentNewsFilter === 'All') return NEWS_DATA;
+  return NEWS_DATA.filter(n => n.category === currentNewsFilter);
+}
+
+function renderNewsGrid() {
+  const filtered = getFilteredNews();
+  const total = Math.ceil(filtered.length / NEWS_PER_PAGE);
+  const start = (currentNewsPage - 1) * NEWS_PER_PAGE;
+  const pageItems = filtered.slice(start, start + NEWS_PER_PAGE);
+
+  const grid = document.getElementById('newsGrid');
+  grid.innerHTML = pageItems.map(news => `
+    <div class="news-card" onclick="openNewsDetail(${news.id})" tabindex="0" role="button">
+      <div class="overflow-hidden">
+        <img src="${news.image}" alt="${news.title}" class="card-img">
+      </div>
+      <div class="p-5">
+        <div class="flex items-center gap-2 mb-3">
+          <span class="card-tag">${news.tag}</span>
+          <span class="text-xs" style="color: var(--fg-muted);"><i class="fas fa-map-pin mr-1"></i>${news.location.name}</span>
+        </div>
+        <h3 class="font-bold mb-2 leading-snug" style="color: var(--fg);">${news.title}</h3>
+        <p class="text-sm leading-relaxed" style="color: var(--fg-muted);">${news.summary}</p>
+      </div>
+    </div>
+  `).join('');
+
+  renderPagination('newsPagination', total, currentNewsPage, (p) => { currentNewsPage = p; renderNewsGrid(); });
+}
+
+// ============================
+// Generic pagination renderer
+// ============================
+function renderPagination(containerId, total, current, callback) {
+  const container = document.getElementById(containerId);
+  if (total <= 1) { container.innerHTML = ''; return; }
+
+  let html = `<button class="page-btn" ${current === 1 ? 'disabled style="opacity:0.3;cursor:default;"' : ''}><i class="fas fa-chevron-left text-xs"></i></button>`;
+  for (let i = 1; i <= total; i++) {
+    html += `<button class="page-btn ${i === current ? 'active' : ''}">${i}</button>`;
+  }
+  html += `<button class="page-btn" ${current === total ? 'disabled style="opacity:0.3;cursor:default;"' : ''}><i class="fas fa-chevron-right text-xs"></i></button>`;
+
+  container.innerHTML = html;
+  container.querySelectorAll('.page-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (btn.querySelector('.fa-chevron-left') && current > 1) callback(current - 1);
+      else if (btn.querySelector('.fa-chevron-right') && current < total) callback(current + 1);
+      else if (!isNaN(parseInt(btn.textContent.trim()))) callback(parseInt(btn.textContent.trim()));
+    });
+  });
+}
+
+// ============================
+// News detail modal
+// ============================
+function openNewsDetail(id) {
+  const news = NEWS_DATA.find(n => n.id === id);
+  if (!news) return;
+
+  const modal = document.getElementById('newsModal');
+  const content = document.getElementById('newsModalContent');
+
+  content.innerHTML = `
+    <div class="relative">
+      <img src="${news.image}" alt="${news.title}" class="w-full h-64 object-cover">
+      <div class="absolute inset-0" style="background: linear-gradient(to top, var(--bg-elevated) 0%, transparent 60%);"></div>
+      <button onclick="closeNewsDetail()" class="absolute top-4 right-4 w-10 h-10 rounded-full flex items-center justify-center" style="background: rgba(0,0,0,0.6); color: var(--fg);" aria-label="Close">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <div class="p-8 -mt-12 relative">
+      <div class="flex flex-wrap items-center gap-3 mb-4">
+        <span class="card-tag">${news.tag}</span>
+        <span class="geo-indicator"><span class="pulse"></span>${news.location.name}</span>
+        <span class="text-xs" style="color: var(--fg-muted);">Coordinates: ${news.location.lat.toFixed(2)}, ${news.location.lng.toFixed(2)}</span>
+      </div>
+      <h2 class="font-display font-bold text-2xl lg:text-3xl mb-4 leading-tight" style="color: var(--fg);">${news.title}</h2>
+      <div class="flex flex-wrap items-center gap-4 mb-6 text-sm" style="color: var(--fg-muted);">
+        <span><i class="far fa-calendar mr-1"></i>${news.date}</span>
+        <span><i class="far fa-user mr-1"></i>${news.author}</span>
+      </div>
+      <div class="leading-relaxed text-base" style="color: var(--fg-muted);">
+        <p class="mb-4">${news.content}</p>
+      </div>
+      <div class="mt-8 pt-6" style="border-top: 1px solid var(--border);">
+        <h4 class="font-bold text-sm mb-3">Event Location</h4>
+        <div class="rounded-lg overflow-hidden" style="border: 1px solid var(--border); height: 250px; background: var(--card);">
+          <iframe
+            src="https://www.openstreetmap.org/export/embed.html?bbox=${news.location.lng - 0.1}%2C${news.location.lat - 0.08}%2C${news.location.lng + 0.1}%2C${news.location.lat + 0.08}&layer=mapnik&marker=${news.location.lat}%2C${news.location.lng}"
+            width="100%" height="100%" style="border: none;" loading="lazy"
+            title="${news.location.name} map" aria-label="Map showing location of ${news.location.name}">
+          </iframe>
+        </div>
+      </div>
+    </div>
+  `;
+
+  modal.classList.add('show');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeNewsDetail() {
+  document.getElementById('newsModal').classList.remove('show');
+  document.body.style.overflow = '';
+}
+
+document.getElementById('newsModal').addEventListener('click', (e) => {
+  if (e.target === e.currentTarget) closeNewsDetail();
+});
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') closeNewsDetail();
+});
+
+// ============================
+// Cities page
+// ============================
+function renderCitiesGrid() {
+  const total = Math.ceil(CITIES_DATA.length / CITIES_PER_PAGE);
+  const start = (currentCityPage - 1) * CITIES_PER_PAGE;
+  const pageItems = CITIES_DATA.slice(start, start + CITIES_PER_PAGE);
+
+  const grid = document.getElementById('citiesGrid');
+  grid.innerHTML = pageItems.map(city => `
+    <div class="city-card" onclick="openCityDetail('${city.name}')" tabindex="0" role="button" aria-label="View details for ${city.name}">
+      <img src="${city.image}" alt="${city.name}" loading="lazy">
+      <div class="city-overlay">
+        <div class="geo-indicator mb-2"><span class="pulse"></span>${city.lat.toFixed(2)}, ${city.lng.toFixed(2)}</div>
+        <h3 class="font-display font-bold text-2xl mb-1">${city.name}</h3>
+        <p class="text-sm font-medium" style="color: var(--accent);">${city.nameEn} · ${city.country}</p>
+        <p class="text-sm mt-2 line-clamp-2" style="color: var(--fg-muted);">${city.desc}</p>
+        <div class="mt-3 text-xs" style="color: var(--fg-muted);"><i class="fas fa-calendar-alt mr-1"></i>${city.events.length} upcoming events</div>
+      </div>
+    </div>
+  `).join('');
+
+  renderPagination('citiesPagination', total, currentCityPage, (p) => {
+    currentCityPage = p;
+    renderCitiesGrid();
+    document.getElementById('cityDetail').style.display = 'none';
+  });
+}
+
+function openCityDetail(cityName) {
+  const city = CITIES_DATA.find(c => c.name === cityName);
+  if (!city) return;
+
+  const detail = document.getElementById('cityDetail');
+  detail.style.display = 'block';
+  detail.innerHTML = `
+    <div style="border: 1px solid var(--border); border-radius: 16px; overflow: hidden; background: var(--card);">
+      <div class="relative">
+        <img src="${city.image}" alt="${city.name}" class="w-full h-48 object-cover">
+        <div class="absolute inset-0" style="background: linear-gradient(to top, var(--card) 0%, transparent 60%);"></div>
+        <button onclick="document.getElementById('cityDetail').style.display='none'" class="absolute top-3 right-3 w-8 h-8 rounded-full flex items-center justify-center" style="background: rgba(0,0,0,0.6); color: var(--fg);" aria-label="Close details">
+          <i class="fas fa-times text-sm"></i>
+        </button>
+      </div>
+      <div class="p-6 -mt-8 relative">
+        <div class="flex items-center gap-3 mb-4">
+          <h3 class="font-display font-bold text-3xl">${city.name}</h3>
+          <span class="geo-indicator"><span class="pulse"></span>Geolocation enabled</span>
+        </div>
+        <p class="mb-6" style="color: var(--fg-muted);">${city.desc}</p>
+
+        <h4 class="font-bold mb-4"><i class="fas fa-calendar-alt mr-2" style="color: var(--accent);"></i>Upcoming Events</h4>
+        <div class="space-y-3 mb-8">
+          ${city.events.map(ev => `
+            <div class="flex items-start gap-4 p-4 rounded-lg" style="background: var(--bg); border: 1px solid var(--border);">
+              <div class="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0" style="background: rgba(212,162,78,0.15);">
+                <i class="fas fa-ticket-alt" style="color: var(--accent);"></i>
+              </div>
+              <div>
+                <h5 class="font-bold text-sm" style="color: var(--fg);">${ev.title}</h5>
+                <div class="flex flex-wrap gap-3 mt-1 text-xs" style="color: var(--fg-muted);">
+                  <span><i class="far fa-calendar mr-1"></i>${ev.date}</span>
+                  <span><i class="fas fa-map-pin mr-1"></i>${ev.venue}</span>
+                </div>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+
+        <h4 class="font-bold mb-4"><i class="fas fa-map mr-2" style="color: var(--accent);"></i>Geographic Location</h4>
+        <div class="rounded-lg overflow-hidden" style="border: 1px solid var(--border); height: 300px;">
+          <iframe
+            src="https://www.openstreetmap.org/export/embed.html?bbox=${city.lng - 0.08}%2C${city.lat - 0.06}%2C${city.lng + 0.08}%2C${city.lat + 0.06}&layer=mapnik&marker=${city.lat}%2C${city.lng}"
+            width="100%" height="100%" style="border: none;" loading="lazy"
+            title="${city.name} map" aria-label="Map showing location of ${city.name}">
+          </iframe>
+        </div>
+      </div>
+    </div>
+  `;
+
+  detail.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+
+
+
+
+
+
+
+
+
+
+// ============================
+// Data page: charts
+// ============================
+let chartsInitialized = false;
+
+function initCharts() {
+  if (chartsInitialized) return;
+  chartsInitialized = true;
+
+  Chart.defaults.color = '#9a9590';
+  Chart.defaults.borderColor = '#333333';
+  Chart.defaults.font.family = "'Noto Sans SC', sans-serif";
+
+  // Trend chart
+  new Chart(document.getElementById('trendChart'), {
+    type: 'line',
+    data: {
+      labels: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
+      datasets: [{
+        label: 'Reports',
+        data: [820, 790, 950, 1020, 1100, 980, 1150, 1280, 1340, 1190, 1260, 1380],
+        borderColor: '#d4a24e',
+        backgroundColor: 'rgba(212,162,78,0.1)',
+        fill: true,
+        tension: 0.4,
+        pointBackgroundColor: '#d4a24e',
+        pointBorderColor: '#d4a24e',
+        pointRadius: 3,
+        pointHoverRadius: 6
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        y: { beginAtZero: false, grid: { color: 'rgba(51,51,51,0.5)' } },
+        x: { grid: { display: false } }
+      }
+    }
+  });
+
+  // Regional distribution chart
+  new Chart(document.getElementById('regionChart'), {
+    type: 'bar',
+    data: {
+      labels: ['East Asia','Europe','N. America','Middle East','Africa','S. America','Oceania'],
+      datasets: [{
+        label: 'Reports',
+        data: [3200, 2800, 2400, 1600, 1100, 980, 767],
+        backgroundColor: [
+          'rgba(212,162,78,0.8)',
+          'rgba(212,162,78,0.65)',
+          'rgba(212,162,78,0.5)',
+          'rgba(212,162,78,0.4)',
+          'rgba(212,162,78,0.3)',
+          'rgba(212,162,78,0.2)',
+          'rgba(212,162,78,0.15)'
+        ],
+        borderRadius: 6,
+        borderSkipped: false
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        y: { beginAtZero: true, grid: { color: 'rgba(51,51,51,0.5)' } },
+        x: { grid: { display: false } }
+      }
+    }
+  });
+
+  // Category breakdown chart
+  new Chart(document.getElementById('categoryChart'), {
+    type: 'doughnut',
+    data: {
+      labels: ['Politics','Economy','Technology','Culture','Environment','Sports','Health'],
+      datasets: [{
+        data: [22, 20, 18, 15, 10, 8, 7],
+        backgroundColor: [
+          '#d4a24e','#f0c060','#a07830','#c4944a','#e0b868','#8a6520','#b88a3e'
+        ],
+        borderColor: '#222222',
+        borderWidth: 3,
+        hoverOffset: 8
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      cutout: '60%',
+      plugins: {
+        legend: {
+          position: 'right',
+          labels: { padding: 16, usePointStyle: true, pointStyleWidth: 10 }
+        }
+      }
+    }
+  });
+}
+
+function animateStats() {
+  document.querySelectorAll('.stat-number[data-target]').forEach(el => {
+    const target = parseInt(el.dataset.target);
+    animateCountUp(el, target, 1800);
+  });
+}
+
+// ============================
+// Geolocation: calculate distance
+// ============================
+function getMyLocation() {
+  const resultEl = document.getElementById('distanceResult');
+  if (!navigator.geolocation) {
+    resultEl.textContent = 'Your browser does not support geolocation';
+    resultEl.style.color = 'var(--danger)';
+    return;
+  }
+
+  resultEl.textContent = 'Getting your location...';
+  resultEl.style.color = 'var(--accent)';
+
+  navigator.geolocation.getCurrentPosition(
+    (pos) => {
+      const userLat = pos.coords.latitude;
+      const userLng = pos.coords.longitude;
+      const hqLat = 39.905;
+      const hqLng = 116.45;
+      const distance = haversineDistance(userLat, userLng, hqLat, hqLng);
+      resultEl.textContent = `You are at ${userLat.toFixed(4)}, ${userLng.toFixed(4)} — approximately ${distance.toFixed(1)} km from Beijing HQ`;
+      resultEl.style.color = 'var(--success)';
+      showToast(`Location found: ${distance.toFixed(1)} km from HQ`, 'success');
+    },
+    (err) => {
+      let msg = 'Location failed';
+      if (err.code === 1) msg = 'Permission denied — please allow location access in browser settings';
+      else if (err.code === 2) msg = 'Unable to retrieve location information';
+      else if (err.code === 3) msg = 'Location request timed out';
+      resultEl.textContent = msg;
+      resultEl.style.color = 'var(--danger)';
+    },
+    { enableHighAccuracy: true, timeout: 10000 }
+  );
+}
+
+function haversineDistance(lat1, lng1, lat2, lng2) {
+  const R = 6371;
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLng = (lng2 - lng1) * Math.PI / 180;
+  const a = Math.sin(dLat / 2) ** 2 + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLng / 2) ** 2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
+// ============================
+// Feedback system
+// ============================
+function setRating(value) {
+  feedbackRating = value;
+  document.getElementById('fb-rating').value = value;
+  document.querySelectorAll('#ratingStars button').forEach(btn => {
+    const r = parseInt(btn.dataset.rating);
+    btn.style.color = r <= value ? 'var(--accent)' : 'var(--border)';
+  });
+}
+
+function submitFeedback(e) {
+  e.preventDefault();
+
+  const name = document.getElementById('fb-name').value.trim();
+  const email = document.getElementById('fb-email').value.trim();
+  const type = document.getElementById('fb-type').value;
+  const message = document.getElementById('fb-message').value.trim();
+  const rating = parseInt(document.getElementById('fb-rating').value);
+
+  // Reset errors
+  document.getElementById('fb-name-err').classList.add('hidden');
+  document.getElementById('fb-email-err').classList.add('hidden');
+  document.getElementById('fb-msg-err').classList.add('hidden');
+
+  let hasError = false;
+
+  if (!name) { document.getElementById('fb-name-err').classList.remove('hidden'); hasError = true; }
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { document.getElementById('fb-email-err').classList.remove('hidden'); hasError = true; }
+  if (!message) { document.getElementById('fb-msg-err').classList.remove('hidden'); hasError = true; }
+
+  if (hasError) { showToast('Please fix the errors in the form', 'error'); return; }
+
+  const feedback = { name, email, type, rating, message, timestamp: new Date().toISOString() };
+  console.log('Feedback data:', feedback);
+
+  showToast('Thank you for your feedback — we will review it carefully!', 'success');
+
+  document.getElementById('feedbackForm').reset();
+  setRating(0);
+}
+
+// ============================
+// Toast notifications
+// ============================
+function showToast(msg, type) {
+  const toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.className = 'toast ' + type;
+  void toast.offsetWidth; // force reflow
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 3500);
+}
+
+// ============================
+// Initialize
+// ============================
+document.addEventListener('DOMContentLoaded', () => {
+  initTicker();
+  initHomeCounters();
+  renderHeadlines();
+  renderEventsTimeline();
+  renderWorldGrid();
+  renderNewsFilters();
+  renderNewsGrid();
+  renderCitiesGrid();
+});
+
+// Keyboard accessibility: Enter to open cards
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' && e.target.classList.contains('news-card')) e.target.click();
+  if (e.key === 'Enter' && e.target.classList.contains('city-card')) e.target.click();
+});
+</script>
+</body>
+</html>
